@@ -1,0 +1,259 @@
+export type ThemeMode = "system" | "light" | "dark";
+
+export type AppLanguage = "en" | "sq" | "hi" | "id" | "jv" | "es" | "ar";
+
+export interface LanguageInfo {
+  code: AppLanguage;
+  displayName: string;
+}
+
+export const LANGUAGES: LanguageInfo[] = [
+  { code: "en", displayName: "English" },
+  { code: "sq", displayName: "Shqip" },
+  { code: "hi", displayName: "Hindi" },
+  { code: "id", displayName: "Bahasa Indonesia" },
+  { code: "jv", displayName: "Basa Jawa" },
+  { code: "es", displayName: "Español" },
+  { code: "ar", displayName: "العربية" },
+];
+
+type TranslationKeys = {
+  app_name: string; settings: string; label_about: string;
+  select_binary: string; select_metadata: string; start_dump: string;
+  new_dump: string; try_again: string; dump_again: string; dump_options: string;
+  label_binary: string; label_metadata: string; label_log: string;
+  label_output: string; label_generation: string; label_advanced: string;
+  label_appearance: string; label_theme: string; label_language: string;
+  label_output_dir: string; setting_output_dir_desc: string; output_reset: string;
+  status_processing: string; dump_complete: string; dump_failed: string;
+  theme_system: string; theme_light: string; theme_dark: string;
+  setting_dump_method: string; setting_dump_field: string;
+  setting_dump_property: string; setting_dump_attribute: string;
+  setting_dump_method_offset: string; setting_dump_field_offset: string;
+  setting_dump_typedef_index: string; setting_dump_assembly_name: string;
+  setting_generate_struct: string; setting_generate_dummy_dll: string;
+  setting_dummy_dll_add_token: string; setting_split_dump_per_type: string;
+  setting_generate_generics_dump: string;
+  setting_force_il2cpp_version: string; setting_force_version_label: string;
+  setting_force_dump: string; setting_no_redirected_pointer: string;
+  label_disassembly: string; setting_dump_disassembly: string;
+  setting_dump_disassembly_hex_bytes: string;
+  setting_dump_disassembly_field_names: string;
+  setting_dump_disassembly_annotations: string;
+  setting_dump_disassembly_cfg: string;
+  setting_max_disassembly_instructions: string;
+  dialog_dump_address_title: string; dialog_dump_address_desc: string;
+  dialog_skip: string; dialog_manual_title: string; dialog_manual_desc: string;
+  setting_code_registration: string; setting_metadata_registration: string;
+  about_version: string; about_description: string;
+  about_developer: string; about_powered_by: string; about_community: string;
+  about_channel_1: string; about_channel_1_desc: string;
+  about_channel_2: string; about_channel_2_desc: string;
+  about_group: string; about_group_desc: string; about_report_bugs: string;
+  target_both: string; target_dump_cs: string; target_diffable_cs: string;
+};
+
+const en: TranslationKeys = {
+  app_name: "Rodroid IL2CPP Dumper", settings: "Settings", label_about: "About",
+  select_binary: "Select binary file", select_metadata: "Select global-metadata.dat",
+  start_dump: "Start Dump", new_dump: "New Dump", try_again: "Try Again", dump_again: "Dump Again",
+  dump_options: "Dump Options",
+  label_binary: "IL2CPP Binary", label_metadata: "Metadata", label_log: "Log",
+  label_output: "Output", label_generation: "Generation", label_advanced: "Advanced",
+  label_appearance: "Appearance", label_theme: "Theme", label_language: "Language",
+  label_output_dir: "Output Directory", setting_output_dir_desc: "Where dump results are saved",
+  output_reset: "Reset to Default",
+  status_processing: "Processing", dump_complete: "Dump Complete", dump_failed: "Dump Failed",
+  theme_system: "System", theme_light: "Light", theme_dark: "Dark",
+  setting_dump_method: "Dump Methods", setting_dump_field: "Dump Fields",
+  setting_dump_property: "Dump Properties", setting_dump_attribute: "Dump Attributes",
+  setting_dump_method_offset: "Method Offsets", setting_dump_field_offset: "Field Offsets",
+  setting_dump_typedef_index: "TypeDef Index", setting_dump_assembly_name: "Assembly Name",
+  setting_generate_struct: "Generate Struct", setting_generate_dummy_dll: "Generate Dummy DLL",
+  setting_dummy_dll_add_token: "Dummy DLL Add Token", setting_split_dump_per_type: "Split Per Type",
+  setting_generate_generics_dump: "Generate Generics Dump",
+  setting_force_il2cpp_version: "Force IL2CPP Version", setting_force_version_label: "IL2CPP Version",
+  setting_force_dump: "Force Dump", setting_no_redirected_pointer: "No Redirected Pointer",
+  label_disassembly: "Disassembly", setting_dump_disassembly: "Enable Disassembly",
+  setting_dump_disassembly_hex_bytes: "Hex Bytes",
+  setting_dump_disassembly_field_names: "Field Names",
+  setting_dump_disassembly_annotations: "Annotations",
+  setting_dump_disassembly_cfg: "CFG Analysis",
+  setting_max_disassembly_instructions: "Max Instructions",
+  dialog_dump_address_title: "Dump File Detected",
+  dialog_dump_address_desc: "Enter the IL2CPP dump address, or skip to continue without it.",
+  dialog_skip: "Skip", dialog_manual_title: "Manual Mode",
+  dialog_manual_desc: "Auto-detection failed. Enter CodeRegistration and MetadataRegistration addresses manually.",
+  setting_code_registration: "CodeRegistration (hex)",
+  setting_metadata_registration: "MetadataRegistration (hex)",
+  about_version: "v3.0", about_description: "IL2CPP binary dumper for Unity games — powered by Rust",
+  about_developer: "Developer", about_powered_by: "Powered by Rust 🦀",
+  about_community: "Community",
+  about_channel_1: "Telegram Channel", about_channel_1_desc: "Updates & releases",
+  about_channel_2: "Telegram Channel 2", about_channel_2_desc: "Extra content & news",
+  about_group: "Telegram Group", about_group_desc: "Community chat & support",
+  about_report_bugs: "Report Bugs",
+  target_both: "Both", target_dump_cs: "dump.cs", target_diffable_cs: "DiffableCs",
+};
+
+const sq: TranslationKeys = {
+  app_name: "Rodroid IL2CPP Dumper", settings: "Cilësimet", label_about: "Rreth",
+  select_binary: "Zgjidhni skedarin binar", select_metadata: "Zgjidhni global-metadata.dat",
+  start_dump: "Fillo Dump", new_dump: "Dump i Ri", try_again: "Provoni Përsëri", dump_again: "Dump Përsëri",
+  dump_options: "Opsionet e Dump",
+  label_binary: "IL2CPP Binar", label_metadata: "Metadata", label_log: "Regjistri",
+  label_output: "Prodhimi", label_generation: "Gjenerimi", label_advanced: "Avancuar",
+  label_appearance: "Pamja", label_theme: "Tema", label_language: "Gjuha",
+  label_output_dir: "Direktoria e Prodhimit", setting_output_dir_desc: "Ku ruhen rezultatet e dump",
+  output_reset: "Rikthe Parazgjedhjen",
+  status_processing: "Duke përpunuar", dump_complete: "Dump i Përfunduar", dump_failed: "Dump Dështoi",
+  theme_system: "Sistemi", theme_light: "I Ndritshëm", theme_dark: "I Errët",
+  setting_dump_method: "Dump Metodat", setting_dump_field: "Dump Fushat",
+  setting_dump_property: "Dump Vetitë", setting_dump_attribute: "Dump Atributet",
+  setting_dump_method_offset: "Dump Offset Metodave", setting_dump_field_offset: "Dump Offset Fushave",
+  setting_dump_typedef_index: "Dump TypeDef Indeks", setting_dump_assembly_name: "Dump Emrin e Assembly",
+  setting_generate_struct: "Gjenero Struct", setting_generate_dummy_dll: "Gjenero Dummy DLL",
+  setting_dummy_dll_add_token: "Dummy DLL Shto Token", setting_split_dump_per_type: "Ndaj Dump Sipas Tipit",
+  setting_generate_generics_dump: "Gjenero Nxjerrjen e Generics",
+  setting_force_il2cpp_version: "Detyroni Versionin IL2CPP", setting_force_version_label: "Versioni IL2CPP",
+  setting_force_dump: "Detyroni Dump", setting_no_redirected_pointer: "Pa Pointer të Ridrejtuar",
+  label_disassembly: "Disassembly", setting_dump_disassembly: "Aktivizo Disassembly",
+  setting_dump_disassembly_hex_bytes: "Hex Bytes",
+  setting_dump_disassembly_field_names: "Emrat e Fushave",
+  setting_dump_disassembly_annotations: "Shënimet",
+  setting_dump_disassembly_cfg: "Analiza CFG",
+  setting_max_disassembly_instructions: "Instruksione Max",
+  dialog_dump_address_title: "Skedar Dump i Zbuluar",
+  dialog_dump_address_desc: "Vendos adresën e dump IL2CPP, ose kalo për të vazhduar pa të.",
+  dialog_skip: "Kalo", dialog_manual_title: "Mënyra Manuale",
+  dialog_manual_desc: "Zbulimi automatik dështoi. Vendos adresat CodeRegistration dhe MetadataRegistration manualisht.",
+  setting_code_registration: "CodeRegistration (hex)",
+  setting_metadata_registration: "MetadataRegistration (hex)",
+  about_version: "v3.0", about_description: "IL2CPP dumper binar për lojëra Unity — mundësuar nga Rust",
+  about_developer: "Zhvilluesi", about_powered_by: "Mundësuar nga Rust 🦀",
+  about_community: "Komuniteti",
+  about_channel_1: "Kanali Telegram", about_channel_1_desc: "Përditësime & publikime",
+  about_channel_2: "Kanali Telegram 2", about_channel_2_desc: "Përmbajtje shtesë & lajme",
+  about_group: "Grupi Telegram", about_group_desc: "Bisedë & mbështetje",
+  about_report_bugs: "Raporto Defekte",
+  target_both: "Both", target_dump_cs: "dump.cs", target_diffable_cs: "DiffableCs",
+};
+
+const ar: TranslationKeys = {
+  app_name: "Rodroid IL2CPP Dumper", settings: "الإعدادات", label_about: "حول",
+  select_binary: "اختر الملف الثنائي", select_metadata: "اختر global-metadata.dat",
+  start_dump: "بدء التفريغ", new_dump: "تفريغ جديد", try_again: "حاول مرة أخرى", dump_again: "تفريغ مرة أخرى",
+  dump_options: "خيارات التفريغ",
+  label_binary: "IL2CPP ثنائي", label_metadata: "البيانات الوصفية", label_log: "السجل",
+  label_output: "المخرجات", label_generation: "التوليد", label_advanced: "متقدم",
+  label_appearance: "المظهر", label_theme: "السمة", label_language: "اللغة",
+  label_output_dir: "مجلد المخرجات", setting_output_dir_desc: "مكان حفظ نتائج التفريغ",
+  output_reset: "إعادة التعيين للافتراضي",
+  status_processing: "جارِ المعالجة", dump_complete: "اكتمل التفريغ", dump_failed: "فشل التفريغ",
+  theme_system: "النظام", theme_light: "فاتح", theme_dark: "داكن",
+  setting_dump_method: "تفريغ الدوال", setting_dump_field: "تفريغ الحقول",
+  setting_dump_property: "تفريغ الخصائص", setting_dump_attribute: "تفريغ السمات",
+  setting_dump_method_offset: "تفريغ إزاحات الدوال", setting_dump_field_offset: "تفريغ إزاحات الحقول",
+  setting_dump_typedef_index: "تفريغ فهرس TypeDef", setting_dump_assembly_name: "تفريغ اسم Assembly",
+  setting_generate_struct: "توليد Struct", setting_generate_dummy_dll: "توليد Dummy DLL",
+  setting_dummy_dll_add_token: "إضافة Token لـ Dummy DLL", setting_split_dump_per_type: "تقسيم التفريغ حسب النوع",
+  setting_generate_generics_dump: "إنشاء استخراج Generics",
+  setting_force_il2cpp_version: "فرض إصدار IL2CPP", setting_force_version_label: "إصدار IL2CPP",
+  setting_force_dump: "فرض التفريغ", setting_no_redirected_pointer: "بدون مؤشر إعادة التوجيه",
+  label_disassembly: "Disassembly", setting_dump_disassembly: "تفعيل Disassembly",
+  setting_dump_disassembly_hex_bytes: "Hex Bytes",
+  setting_dump_disassembly_field_names: "أسماء الحقول",
+  setting_dump_disassembly_annotations: "التعليقات التوضيحية",
+  setting_dump_disassembly_cfg: "تحليل CFG",
+  setting_max_disassembly_instructions: "أقصى تعليمات",
+  dialog_dump_address_title: "تم اكتشاف ملف تفريغ",
+  dialog_dump_address_desc: "أدخل عنوان تفريغ IL2CPP، أو تخطَّ للمتابعة بدونه.",
+  dialog_skip: "تخطي", dialog_manual_title: "الوضع اليدوي",
+  dialog_manual_desc: "فشل الاكتشاف التلقائي. أدخل عناوين CodeRegistration و MetadataRegistration يدوياً.",
+  setting_code_registration: "CodeRegistration (hex)",
+  setting_metadata_registration: "MetadataRegistration (hex)",
+  about_version: "v3.0", about_description: "أداة تفريغ IL2CPP لألعاب Unity — مدعوم بـ Rust",
+  about_developer: "المطور", about_powered_by: "مدعوم بـ Rust 🦀",
+  about_community: "المجتمع",
+  about_channel_1: "قناة تيليجرام", about_channel_1_desc: "تحديثات & إصدارات",
+  about_channel_2: "قناة تيليجرام 2", about_channel_2_desc: "محتوى إضافي & أخبار",
+  about_group: "مجموعة تيليجرام", about_group_desc: "دردشة & دعم المجتمع",
+  about_report_bugs: "الإبلاغ عن أخطاء",
+  target_both: "Both", target_dump_cs: "dump.cs", target_diffable_cs: "DiffableCs",
+};
+
+const es: TranslationKeys = {
+  app_name: "Rodroid IL2CPP Dumper", settings: "Ajustes", label_about: "Acerca de",
+  select_binary: "Seleccionar archivo binario", select_metadata: "Seleccionar global-metadata.dat",
+  start_dump: "Iniciar Dump", new_dump: "Nuevo Dump", try_again: "Intentar de Nuevo", dump_again: "Dump de Nuevo",
+  dump_options: "Opciones de Dump",
+  label_binary: "IL2CPP Binario", label_metadata: "Metadata", label_log: "Registro",
+  label_output: "Salida", label_generation: "Generación", label_advanced: "Avanzado",
+  label_appearance: "Apariencia", label_theme: "Tema", label_language: "Idioma",
+  label_output_dir: "Directorio de Salida", setting_output_dir_desc: "Dónde se guardan los resultados del dump",
+  output_reset: "Restablecer por Defecto",
+  status_processing: "Procesando", dump_complete: "Dump Completo", dump_failed: "Dump Fallido",
+  theme_system: "Sistema", theme_light: "Claro", theme_dark: "Oscuro",
+  setting_dump_method: "Volcar Métodos", setting_dump_field: "Volcar Campos",
+  setting_dump_property: "Volcar Propiedades", setting_dump_attribute: "Volcar Atributos",
+  setting_dump_method_offset: "Volcar Offsets de Métodos", setting_dump_field_offset: "Volcar Offsets de Campos",
+  setting_dump_typedef_index: "Volcar Índice TypeDef", setting_dump_assembly_name: "Volcar Nombre de Assembly",
+  setting_generate_struct: "Generar Struct", setting_generate_dummy_dll: "Generar Dummy DLL",
+  setting_dummy_dll_add_token: "Añadir Token a Dummy DLL", setting_split_dump_per_type: "Dividir Volcado por Tipo",
+  setting_generate_generics_dump: "Generar Volcado de Generics",
+  setting_force_il2cpp_version: "Forzar Versión IL2CPP", setting_force_version_label: "Versión IL2CPP",
+  setting_force_dump: "Forzar Dump", setting_no_redirected_pointer: "Sin Puntero Redirigido",
+  label_disassembly: "Disassembly", setting_dump_disassembly: "Habilitar Disassembly",
+  setting_dump_disassembly_hex_bytes: "Hex Bytes",
+  setting_dump_disassembly_field_names: "Nombres de Campos",
+  setting_dump_disassembly_annotations: "Anotaciones",
+  setting_dump_disassembly_cfg: "Análisis CFG",
+  setting_max_disassembly_instructions: "Instrucciones Máximas",
+  dialog_dump_address_title: "Archivo Dump Detectado",
+  dialog_dump_address_desc: "Ingrese la dirección de dump IL2CPP, u omita para continuar sin ella.",
+  dialog_skip: "Omitir", dialog_manual_title: "Modo Manual",
+  dialog_manual_desc: "La detección automática falló. Ingrese las direcciones CodeRegistration y MetadataRegistration manualmente.",
+  setting_code_registration: "CodeRegistration (hex)",
+  setting_metadata_registration: "MetadataRegistration (hex)",
+  about_version: "v3.0", about_description: "IL2CPP binary dumper para juegos Unity — impulsado por Rust",
+  about_developer: "Desarrollador", about_powered_by: "Impulsado por Rust 🦀",
+  about_community: "Comunidad",
+  about_channel_1: "Canal de Telegram", about_channel_1_desc: "Actualizaciones & lanzamientos",
+  about_channel_2: "Canal de Telegram 2", about_channel_2_desc: "Contenido extra & noticias",
+  about_group: "Grupo de Telegram", about_group_desc: "Chat & soporte comunitario",
+  about_report_bugs: "Reportar Errores",
+  target_both: "Both", target_dump_cs: "dump.cs", target_diffable_cs: "DiffableCs",
+};
+
+const hi: TranslationKeys = { ...en,
+  settings: "सेटिंग्स", label_about: "के बारे में", start_dump: "डंप शुरू करें",
+  new_dump: "नया डंप", try_again: "पुनः प्रयास करें", dump_again: "फिर से डंप करें", dump_options: "डंप विकल्प",
+  label_appearance: "दिखावट", label_theme: "थीम", label_language: "भाषा",
+  theme_system: "सिस्टम", theme_light: "लाइट", theme_dark: "डार्क",
+  dump_complete: "डंप पूर्ण", dump_failed: "डंप विफल",
+  label_output_dir: "आउटपुट डायरेक्टरी", output_reset: "डिफ़ॉल्ट पर रीसेट",
+};
+
+const id: TranslationKeys = { ...en,
+  settings: "Pengaturan", label_about: "Tentang", start_dump: "Mulai Dump",
+  new_dump: "Dump Baru", try_again: "Coba Lagi", dump_again: "Dump Lagi", dump_options: "Opsi Dump",
+  label_appearance: "Tampilan", label_theme: "Tema", label_language: "Bahasa",
+  theme_system: "Sistem", theme_light: "Terang", theme_dark: "Gelap",
+  dump_complete: "Dump Selesai", dump_failed: "Dump Gagal",
+  label_output_dir: "Direktori Output", output_reset: "Reset ke Default",
+};
+
+const jv: TranslationKeys = { ...en,
+  settings: "Setelan", label_about: "Babagan", start_dump: "Mulai Dump",
+  new_dump: "Dump Anyar", try_again: "Coba Maneh", dump_again: "Dump Maneh", dump_options: "Opsi Dump",
+  label_appearance: "Tampilan", label_theme: "Tema", label_language: "Basa",
+  theme_system: "Sistem", theme_light: "Padhang", theme_dark: "Peteng",
+  dump_complete: "Dump Rampung", dump_failed: "Dump Gagal",
+  label_output_dir: "Direktori Output", output_reset: "Reset menyang Default",
+};
+
+const translations: Record<AppLanguage, TranslationKeys> = { en, sq, ar, es, hi, id, jv };
+
+export function getTranslations(lang: AppLanguage): TranslationKeys {
+  return translations[lang] || en;
+}

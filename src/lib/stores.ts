@@ -1,0 +1,103 @@
+import { writable, derived, get } from "svelte/store";
+import type { AppState, DumperConfig, BinaryInfo } from "./types";
+import { DEFAULT_CONFIG } from "./types";
+import { type AppLanguage, type ThemeMode, getTranslations } from "./i18n";
+
+export type ScreenState = "idle" | "settings" | "about" | "dumping" | "result" | "error" | "crash" | "splash";
+
+const STORAGE_KEY = "il2cpp_dumper_prefs";
+
+interface PersistedPrefs {
+  themeMode: ThemeMode;
+  language: AppLanguage;
+  config: DumperConfig;
+  outputDir: string;
+}
+
+function loadPrefs(): PersistedPrefs {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) return { ...defaultPrefs(), ...JSON.parse(raw) };
+  } catch {}
+  return defaultPrefs();
+}
+
+function defaultPrefs(): PersistedPrefs {
+  return {
+    themeMode: "system",
+    language: "en",
+    config: { ...DEFAULT_CONFIG },
+    outputDir: "IL2CppDumper",
+  };
+}
+
+function savePrefs(prefs: Partial<PersistedPrefs>) {
+  try {
+    const current = loadPrefs();
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...current, ...prefs }));
+  } catch {}
+}
+
+const saved = loadPrefs();
+
+export const themeMode = writable<ThemeMode>(saved.themeMode);
+export const language = writable<AppLanguage>(saved.language);
+export const config = writable<DumperConfig>(saved.config);
+export const outputDir = writable<string>(saved.outputDir);
+
+themeMode.subscribe(v => savePrefs({ themeMode: v }));
+language.subscribe(v => savePrefs({ language: v }));
+config.subscribe(v => savePrefs({ config: v }));
+outputDir.subscribe(v => savePrefs({ outputDir: v }));
+
+export const t = derived(language, ($lang) => getTranslations($lang));
+
+export const defaultOutputDir = writable<string>("IL2CppDumper");
+export const currentScreen = writable<ScreenState>("splash");
+export const crashLog = writable<string>("");
+export const appState = writable<AppState>("idle");
+export const logs = writable<string[]>([]);
+export const binaryPath = writable("");
+export const metadataPath = writable("");
+export const binaryInfo = writable<BinaryInfo | null>(null);
+export const outputPath = writable("");
+export const errorMessage = writable("");
+export const inputRequest = writable<string | null>(null);
+export const elapsedSeconds = writable(0);
+
+export function resetAll() {
+  appState.set("idle");
+  currentScreen.set("idle");
+  logs.set([]);
+  binaryPath.set("");
+  metadataPath.set("");
+  binaryInfo.set(null);
+  outputPath.set("");
+  errorMessage.set("");
+  inputRequest.set(null);
+  elapsedSeconds.set(0);
+  crashLog.set("");
+}
+
+export function resetForNewDump() {
+  appState.set("idle");
+  currentScreen.set("idle");
+  logs.set([]);
+  outputPath.set("");
+  errorMessage.set("");
+  inputRequest.set(null);
+  elapsedSeconds.set(0);
+}
+
+export function applyTheme(mode: ThemeMode) {
+  const html = document.documentElement;
+  if (mode === "dark") {
+    html.classList.add("dark");
+  } else if (mode === "light") {
+    html.classList.remove("dark");
+  } else {
+    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    if (prefersDark) html.classList.add("dark");
+    else html.classList.remove("dark");
+  }
+}
