@@ -24,98 +24,102 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
         with:
           toolchain: stable
-          targets: aarch64-apple-ios
+          targets: aarch64-apple-ios,aarch64-apple-ios-sim
 
       - name: Install frontend dependencies
         run: npm install
 
       - name: Initialize iOS & Inject Permissions
         run: |
-          echo "Initializing iOS..."
           npm run tauri add os
           npm run tauri ios init
-          
-          echo "Injecting Permissions..."
+
           PLIST=$(find src-tauri/gen/apple -path "*_iOS/Info.plist" | head -n 1)
           if [ -n "$PLIST" ] && [ -f "$PLIST" ]; then
-            echo "Found Info.plist at: $PLIST"
             plutil -insert UIFileSharingEnabled -bool YES "$PLIST"
             plutil -insert LSSupportsOpeningDocumentsInPlace -bool YES "$PLIST"
-          else
-            echo "Warning: Info.plist not found!"
+            echo "Injected file sharing permissions into $PLIST"
           fi
 
-      - name: Disable Xcode Code Signing
+      - name: Disable Xcode Code Signing in project
         run: |
-          python3 -c "
-          import os
-          import textwrap
-          
-          pbx = 'src-tauri/gen/apple/rodroid-il2cppdumper.xcodeproj/project.pbxproj'
-          if os.path.exists(pbx):
-              with open(pbx, 'r') as f:
+          python3 << 'PYEOF'
+          import glob, re
+
+          for pbx in glob.glob("src-tauri/gen/apple/*.xcodeproj/project.pbxproj"):
+              with open(pbx, "r") as f:
                   data = f.read()
-              data = data.replace('CODE_SIGN_STYLE = Automatic;', 'CODE_SIGN_STYLE = Manual;')
-              
-              disabled_settings = textwrap.dedent('''\
-              buildSettings = {
-              \t\t\t\tCODE_SIGNING_ALLOWED = \"NO\";
-              \t\t\t\tCODE_SIGNING_REQUIRED = \"NO\";
-              \t\t\t\tCODE_SIGN_IDENTITY = \"\";''')
-              
-              data = data.replace('buildSettings = {', disabled_settings)
-              
-              with open(pbx, 'w') as f:
-                  f.write(data)
-              print('Successfully patched project.pbxproj to disable code signing')
-          else:
-              print('Warning: project.pbxproj not found!')
-          "
 
-      - name: Build iOS App (Device)
+              data = data.replace("CODE_SIGN_STYLE = Automatic;", "CODE_SIGN_STYLE = Manual;")
+
+              inject = (
+                  'buildSettings = {\n'
+                  '\t\t\t\tCODE_SIGNING_ALLOWED = NO;\n'
+                  '\t\t\t\tCODE_SIGNING_REQUIRED = NO;\n'
+                  '\t\t\t\tCODE_SIGN_IDENTITY = "";\n'
+                  '\t\t\t\tDEVELOPMENT_TEAM = "";'
+              )
+              data = data.replace("buildSettings = {", inject)
+
+              data = re.sub(
+                  r'DEVELOPMENT_TEAM = "[^"]*";',
+                  'DEVELOPMENT_TEAM = "";',
+                  data,
+              )
+
+              with open(pbx, "w") as f:
+                  f.write(data)
+              print(f"Patched {pbx}")
+          PYEOF
+
+      - name: Build iOS (Device - aarch64)
         run: |
-          echo "Installing Device Target..."
-          rustup target add aarch64-apple-ios
-          
-          export CODE_SIGNING_ALLOWED="NO"
-          export CODE_SIGNING_REQUIRED="NO"
-          export CODE_SIGN_IDENTITY=""
-          
-          echo "Building physical device..."
           npx tauri ios build --target aarch64 || true
-          
-          mkdir -p Payload_Device
-          APP_DIR=$(find src-tauri/gen/apple -name "*.app" -type d | head -n 1)
-          if [ -n "$APP_DIR" ]; then
-            mv "$APP_DIR" Payload_Device/
-            cd Payload_Device
-            zip -qr ../Rodroid_IL2CPPDumper_iOS_unsigned.ipa *.app
-            cd ..
-          else
-            echo "Warning: No physical device .app found! Build might have failed fatally."
+
+          echo "=== Searching for .xcarchive ==="
+          find src-tauri/gen/apple -name "*.xcarchive" -type d 2>/dev/null || true
+
+          echo "=== Searching for .app inside xcarchive ==="
+          find src-tauri/gen/apple -path "*.xcarchive/Products/Applications/*.app" -type d 2>/dev/null || true
+
+          echo "=== Searching for any .app ==="
+          find src-tauri/gen/apple -name "*.app" -type d 2>/dev/null || true
+
+          ARCHIVE_APP=$(find src-tauri/gen/apple -path "*.xcarchive/Products/Applications/*.app" -type d | head -n 1)
+
+          if [ -z "$ARCHIVE_APP" ]; then
+            ARCHIVE_APP=$(find src-tauri/gen/apple -name "*.app" -type d | head -n 1)
           fi
 
-      - name: Build iOS App (Simulator)
-        run: |
-          echo "Installing Simulator Target..."
-          rustup target add aarch64-apple-ios-sim
-          
-          export CODE_SIGNING_ALLOWED="NO"
-          export CODE_SIGNING_REQUIRED="NO"
-          export CODE_SIGN_IDENTITY=""
-          
-          echo "Building Simulator..."
-          npx tauri ios build --target aarch64-sim || true
-          
-          mkdir -p Payload_Sim
-          APP_DIR=$(find src-tauri/gen/apple -name "*.app" -type d | head -n 1)
-          if [ -n "$APP_DIR" ]; then
-            mv "$APP_DIR" Payload_Sim/
-            cd Payload_Sim
-            zip -qr ../Rodroid_IL2CPPDumper_iOS_Simulator.zip *.app
-            cd ..
+          if [ -n "$ARCHIVE_APP" ]; then
+            echo "Found device .app at: $ARCHIVE_APP"
+            mkdir -p Payload
+            cp -R "$ARCHIVE_APP" Payload/
+            zip -qr Rodroid_IL2CPPDumper_iOS_unsigned.ipa Payload
+            echo "Device IPA created successfully"
           else
-            echo "Warning: No simulator device .app found! Build might have failed fatally."
+            echo "WARNING: No device .app found"
+          fi
+
+      - name: Build iOS (Simulator - aarch64-sim)
+        run: |
+          npx tauri ios build --target aarch64-sim || true
+
+          echo "=== Searching for simulator .app ==="
+          find src-tauri/gen/apple -name "*.app" -type d 2>/dev/null || true
+
+          SIM_APP=$(find src-tauri/gen/apple -path "*.xcarchive/Products/Applications/*.app" -type d | head -n 1)
+
+          if [ -z "$SIM_APP" ]; then
+            SIM_APP=$(find src-tauri/gen/apple -name "*.app" -type d | head -n 1)
+          fi
+
+          if [ -n "$SIM_APP" ]; then
+            echo "Found simulator .app at: $SIM_APP"
+            zip -qr Rodroid_IL2CPPDumper_iOS_Simulator.zip "$SIM_APP"
+            echo "Simulator zip created successfully"
+          else
+            echo "WARNING: No simulator .app found"
           fi
 
       - name: Upload Artifacts
@@ -126,26 +130,24 @@ jobs:
             Rodroid_IL2CPPDumper_iOS_unsigned.ipa
             Rodroid_IL2CPPDumper_iOS_Simulator.zip
           retention-days: 7
+          if-no-files-found: warn
 
       - name: Upload to Release (If tag exists)
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           VERSION=$(node -p "require('./package.json').version")
-          
-          # Only try to upload to release if the release actually exists in GitHub!
+
           if gh release view "v$VERSION" > /dev/null 2>&1; then
             echo "Release v$VERSION found. Uploading..."
-            sleep 15 
-            
+
             if [ -f "Rodroid_IL2CPPDumper_iOS_unsigned.ipa" ]; then
               gh release upload "v$VERSION" Rodroid_IL2CPPDumper_iOS_unsigned.ipa --clobber
             fi
-            
+
             if [ -f "Rodroid_IL2CPPDumper_iOS_Simulator.zip" ]; then
               gh release upload "v$VERSION" Rodroid_IL2CPPDumper_iOS_Simulator.zip --clobber
             fi
           else
-            echo "Release v$VERSION does not exist yet. Skipping release upload."
-            echo "You can download the build files from the artifacts on this Action run page!"
+            echo "Release v$VERSION does not exist. Download from Action artifacts instead."
           fi
