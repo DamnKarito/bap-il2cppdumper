@@ -72,30 +72,59 @@ jobs:
               print('Warning: project.pbxproj not found!')
           "
 
-      - name: Build iOS App
+      - name: Build iOS App (Device)
         run: |
+          echo "Installing Device Target..."
+          rustup target add aarch64-apple-ios
+          
           export CODE_SIGNING_ALLOWED="NO"
           export CODE_SIGNING_REQUIRED="NO"
           export CODE_SIGN_IDENTITY=""
-          # Tauri will invoke xcodebuild. The project file itself has code signing disabled!
-          npm run tauri ios build || true
-
-      - name: Package Unsigned IPA
-        run: |
-          mkdir -p Payload
-          APP_DIR=$(find src-tauri/gen/apple -name "*.app" | head -n 1)
-          if [ -z "$APP_DIR" ]; then
-            echo "Error: Could not find generated .app bundle."
-            exit 1
+          
+          echo "Building physical device..."
+          npx tauri ios build --target aarch64-apple-ios || true
+          
+          mkdir -p Payload_Device
+          APP_DIR=$(find src-tauri/gen/apple -path "*iphoneos/*.app" | head -n 1)
+          if [ -n "$APP_DIR" ]; then
+            cp -R "$APP_DIR" Payload_Device/
+            cd Payload_Device
+            zip -qr ../Rodroid_IL2CPPDumper_iOS_unsigned.ipa *.app
+            cd ..
+          else
+            echo "Warning: No physical device .app found! (iphoneos build)"
           fi
-          cp -R "$APP_DIR" Payload/
-          zip -qr Rodroid_IL2CPPDumper_iOS_unsigned.ipa Payload
 
-      - name: Upload as Action Artifact
+      - name: Build iOS App (Simulator)
+        run: |
+          echo "Installing Simulator Target..."
+          rustup target add aarch64-apple-ios-sim
+          
+          export CODE_SIGNING_ALLOWED="NO"
+          export CODE_SIGNING_REQUIRED="NO"
+          export CODE_SIGN_IDENTITY=""
+          
+          echo "Building Simulator..."
+          npx tauri ios build --target aarch64-apple-ios-sim || true
+          
+          mkdir -p Payload_Sim
+          APP_DIR=$(find src-tauri/gen/apple -path "*iphonesimulator/*.app" | head -n 1)
+          if [ -n "$APP_DIR" ]; then
+            cp -R "$APP_DIR" Payload_Sim/
+            cd Payload_Sim
+            zip -qr ../Rodroid_IL2CPPDumper_iOS_Simulator.zip *.app
+            cd ..
+          else
+            echo "Warning: No simulator device .app found! (iphonesimulator build)"
+          fi
+
+      - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: iOS-Unsigned-IPA
-          path: Rodroid_IL2CPPDumper_iOS_unsigned.ipa
+          name: iOS-Builds
+          path: |
+            Rodroid_IL2CPPDumper_iOS_unsigned.ipa
+            Rodroid_IL2CPPDumper_iOS_Simulator.zip
           retention-days: 7
 
       - name: Upload to Release (If tag exists)
@@ -108,8 +137,15 @@ jobs:
           if gh release view "v$VERSION" > /dev/null 2>&1; then
             echo "Release v$VERSION found. Uploading..."
             sleep 15 
-            gh release upload "v$VERSION" Rodroid_IL2CPPDumper_iOS_unsigned.ipa --clobber
+            
+            if [ -f "Rodroid_IL2CPPDumper_iOS_unsigned.ipa" ]; then
+              gh release upload "v$VERSION" Rodroid_IL2CPPDumper_iOS_unsigned.ipa --clobber
+            fi
+            
+            if [ -f "Rodroid_IL2CPPDumper_iOS_Simulator.zip" ]; then
+              gh release upload "v$VERSION" Rodroid_IL2CPPDumper_iOS_Simulator.zip --clobber
+            fi
           else
             echo "Release v$VERSION does not exist yet. Skipping release upload."
-            echo "You can download the .ipa from the artifacts on this Action run page!"
+            echo "You can download the build files from the artifacts on this Action run page!"
           fi
