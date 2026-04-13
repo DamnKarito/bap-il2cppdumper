@@ -82,7 +82,7 @@ jobs:
           export CODE_SIGN_IDENTITY=""
           
           echo "Building physical device..."
-          npx tauri ios build --target aarch64-apple-ios || true
+          npx tauri ios build --target aarch64 || true
           
           mkdir -p Payload_Device
           APP_DIR=$(find src-tauri/gen/apple -path "*iphoneos/*.app" | head -n 1)
@@ -105,7 +105,7 @@ jobs:
           export CODE_SIGN_IDENTITY=""
           
           echo "Building Simulator..."
-          npx tauri ios build --target aarch64-apple-ios-sim || true
+          npx tauri ios build --target aarch64-sim || true
           
           mkdir -p Payload_Sim
           APP_DIR=$(find src-tauri/gen/apple -path "*iphonesimulator/*.app" | head -n 1)
