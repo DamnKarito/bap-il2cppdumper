@@ -33,13 +33,15 @@ jobs:
 
       - name: Configure Info.plist for File Sharing
         run: |
-          PLIST="src-tauri/gen/apple/Rodroid IL2CPP Dumper_iOS/Info.plist"
-          if [ -f "$PLIST" ]; then
+          PLIST=$(find src-tauri/gen/apple -path "*_iOS/Info.plist" | head -n 1)
+          if [ -n "$PLIST" ] && [ -f "$PLIST" ]; then
+            echo "Found Info.plist at: $PLIST"
             plutil -insert UIFileSharingEnabled -bool YES "$PLIST"
             plutil -insert LSSupportsOpeningDocumentsInPlace -bool YES "$PLIST"
             echo "Successfully updated Info.plist"
           else
             echo "Info.plist not found!"
+            find src-tauri/gen/apple
             exit 1
           fi
 

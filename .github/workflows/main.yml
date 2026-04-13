@@ -63,9 +63,14 @@ jobs:
           npm run tauri ios init
           
           echo "Injecting Permissions..."
-          PLIST="src-tauri/gen/apple/Rodroid IL2CPP Dumper_iOS/Info.plist"
-          plutil -insert UIFileSharingEnabled -bool YES "$PLIST"
-          plutil -insert LSSupportsOpeningDocumentsInPlace -bool YES "$PLIST"
+          PLIST=$(find src-tauri/gen/apple -path "*_iOS/Info.plist" | head -n 1)
+          if [ -n "$PLIST" ] && [ -f "$PLIST" ]; then
+            echo "Found Info.plist at: $PLIST"
+            plutil -insert UIFileSharingEnabled -bool YES "$PLIST"
+            plutil -insert LSSupportsOpeningDocumentsInPlace -bool YES "$PLIST"
+          else
+            echo "Warning: Info.plist not found!"
+          fi
           
           echo "Installing iOS Rust Target..."
           rustup target add aarch64-apple-ios
