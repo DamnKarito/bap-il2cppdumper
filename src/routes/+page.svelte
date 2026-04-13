@@ -1,7 +1,8 @@
 <script lang="ts">
   import { listen } from "@tauri-apps/api/event";
   import { invoke } from "@tauri-apps/api/core";
-  import { downloadDir, join } from "@tauri-apps/api/path";
+  import { downloadDir, documentDir, join } from "@tauri-apps/api/path";
+  import { type } from "@tauri-apps/plugin-os";
   import { open } from "@tauri-apps/plugin-dialog";
   import { onMount, onDestroy } from "svelte";
   import {
@@ -29,8 +30,16 @@
 
   onMount(async () => {
     try {
-      const dDir = await downloadDir();
-      const defaultPath = await join(dDir, "IL2CppDumper");
+      const osType = await type();
+      let baseDir = "";
+
+      if (osType === "ios" || osType === "android") {
+        baseDir = await documentDir();
+      } else {
+        baseDir = await downloadDir();
+      }
+
+      const defaultPath = await join(baseDir, "IL2CppDumper");
       defaultOutputDir.set(defaultPath);
       let currentOutDir = "IL2CppDumper";
       outputDir.subscribe(v => currentOutDir = v)();

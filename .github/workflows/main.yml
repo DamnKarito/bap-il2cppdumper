@@ -49,3 +49,43 @@ jobs:
           releaseBody: "See the assets below to download and install this release."
           releaseDraft: true
           prerelease: false
+
+      - name: Build and Upload iOS Unsigned IPA
+        if: matrix.platform == 'macos-latest'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CODE_SIGNING_ALLOWED: "NO"
+          CODE_SIGNING_REQUIRED: "NO"
+          CODE_SIGN_IDENTITY: ""
+        run: |
+          echo "Initializing iOS..."
+          npm run tauri add os
+          npm run tauri ios init
+          
+          echo "Injecting Permissions..."
+          PLIST="src-tauri/gen/apple/Rodroid IL2CPP Dumper_iOS/Info.plist"
+          plutil -insert UIFileSharingEnabled -bool YES "$PLIST"
+          plutil -insert LSSupportsOpeningDocumentsInPlace -bool YES "$PLIST"
+          
+          echo "Installing iOS Rust Target..."
+          rustup target add aarch64-apple-ios
+          
+          echo "Building iOS App..."
+          # Tauri will invoke xcodebuild. We use '|| true' to suppress failure if it crashes at final code-signing stage. The .app is already fully baked!
+          npm run tauri ios build || true
+          
+          echo "Packaging Payload..."
+          mkdir -p Payload
+          # Locate the built .app dynamically
+          APP_DIR=$(find src-tauri/gen/apple -name "*.app" | head -n 1)
+          if [ -z "$APP_DIR" ]; then
+            echo "Error: Could not find generated .app bundle."
+            exit 1
+          fi
+          cp -R "$APP_DIR" Payload/
+          zip -qr Rodroid_IL2CPPDumper_iOS_unsigned.ipa Payload
+          
+          echo "Uploading to Release..."
+          VERSION=$(node -p "require('./package.json').version")
+          gh release upload "v$VERSION" Rodroid_IL2CPPDumper_iOS_unsigned.ipa --clobber
+
