@@ -27,15 +27,21 @@
   let unlistenComplete: (() => void) | null = null;
   let unlistenInput: (() => void) | null = null;
   let unlistenCrash: (() => void) | null = null;
+  let currentOs = $state("Desktop");
 
   onMount(async () => {
     try {
       const osType = await type();
       let baseDir = "";
 
-      if (osType === "ios" || osType === "android") {
+      if (osType === "ios") {
+        currentOs = "iOS";
+        baseDir = await documentDir();
+      } else if (osType === "android") {
+        currentOs = "Android";
         baseDir = await documentDir();
       } else {
+        currentOs = "Desktop";
         baseDir = await downloadDir();
       }
 
@@ -155,7 +161,7 @@
             </div>
             <div>
               <h1 class="text-sm font-semibold text-foreground tracking-tight">{$t.app_name}</h1>
-              <p class="text-[10px] text-muted-foreground">v3.0 Desktop</p>
+              <p class="text-[10px] text-muted-foreground">v3.0 {currentOs}</p>
             </div>
           </div>
           <div class="flex items-center gap-2">
