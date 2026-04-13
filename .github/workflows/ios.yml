@@ -85,14 +85,14 @@ jobs:
           npx tauri ios build --target aarch64 || true
           
           mkdir -p Payload_Device
-          APP_DIR=$(find src-tauri/gen/apple -path "*iphoneos/*.app" | head -n 1)
+          APP_DIR=$(find src-tauri/gen/apple -name "*.app" -type d | head -n 1)
           if [ -n "$APP_DIR" ]; then
-            cp -R "$APP_DIR" Payload_Device/
+            mv "$APP_DIR" Payload_Device/
             cd Payload_Device
             zip -qr ../Rodroid_IL2CPPDumper_iOS_unsigned.ipa *.app
             cd ..
           else
-            echo "Warning: No physical device .app found! (iphoneos build)"
+            echo "Warning: No physical device .app found! Build might have failed fatally."
           fi
 
       - name: Build iOS App (Simulator)
@@ -108,14 +108,14 @@ jobs:
           npx tauri ios build --target aarch64-sim || true
           
           mkdir -p Payload_Sim
-          APP_DIR=$(find src-tauri/gen/apple -path "*iphonesimulator/*.app" | head -n 1)
+          APP_DIR=$(find src-tauri/gen/apple -name "*.app" -type d | head -n 1)
           if [ -n "$APP_DIR" ]; then
-            cp -R "$APP_DIR" Payload_Sim/
+            mv "$APP_DIR" Payload_Sim/
             cd Payload_Sim
             zip -qr ../Rodroid_IL2CPPDumper_iOS_Simulator.zip *.app
             cd ..
           else
-            echo "Warning: No simulator device .app found! (iphonesimulator build)"
+            echo "Warning: No simulator device .app found! Build might have failed fatally."
           fi
 
       - name: Upload Artifacts
