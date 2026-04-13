@@ -1,0 +1,101 @@
+name: "iOS Release"
+
+on:
+  push:
+    tags:
+      - '*'
+  workflow_dispatch:
+
+jobs:
+  build-ios:
+    permissions:
+      contents: write
+    runs-on: macos-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: stable
+          targets: aarch64-apple-ios
+
+      - name: Install frontend dependencies
+        run: npm install
+
+      - name: Initialize iOS & Inject Permissions
+        run: |
+          echo "Initializing iOS..."
+          npm run tauri add os
+          npm run tauri ios init
+          
+          echo "Injecting Permissions..."
+          PLIST=$(find src-tauri/gen/apple -path "*_iOS/Info.plist" | head -n 1)
+          if [ -n "$PLIST" ] && [ -f "$PLIST" ]; then
+            echo "Found Info.plist at: $PLIST"
+            plutil -insert UIFileSharingEnabled -bool YES "$PLIST"
+            plutil -insert LSSupportsOpeningDocumentsInPlace -bool YES "$PLIST"
+          else
+            echo "Warning: Info.plist not found!"
+          fi
+
+      - name: Disable Xcode Code Signing
+        run: |
+          python3 -c "
+          import os
+          import textwrap
+          
+          pbx = 'src-tauri/gen/apple/rodroid-il2cppdumper.xcodeproj/project.pbxproj'
+          if os.path.exists(pbx):
+              with open(pbx, 'r') as f:
+                  data = f.read()
+              data = data.replace('CODE_SIGN_STYLE = Automatic;', 'CODE_SIGN_STYLE = Manual;')
+              
+              disabled_settings = textwrap.dedent('''\
+              buildSettings = {
+              \t\t\t\tCODE_SIGNING_ALLOWED = \"NO\";
+              \t\t\t\tCODE_SIGNING_REQUIRED = \"NO\";
+              \t\t\t\tCODE_SIGN_IDENTITY = \"\";''')
+              
+              data = data.replace('buildSettings = {', disabled_settings)
+              
+              with open(pbx, 'w') as f:
+                  f.write(data)
+              print('Successfully patched project.pbxproj to disable code signing')
+          else:
+              print('Warning: project.pbxproj not found!')
+          "
+
+      - name: Build iOS App
+        run: |
+          export CODE_SIGNING_ALLOWED="NO"
+          export CODE_SIGNING_REQUIRED="NO"
+          export CODE_SIGN_IDENTITY=""
+          # Tauri will invoke xcodebuild. The project file itself has code signing disabled!
+          npm run tauri ios build || true
+
+      - name: Package Unsigned IPA
+        run: |
+          mkdir -p Payload
+          APP_DIR=$(find src-tauri/gen/apple -name "*.app" | head -n 1)
+          if [ -z "$APP_DIR" ]; then
+            echo "Error: Could not find generated .app bundle."
+            exit 1
+          fi
+          cp -R "$APP_DIR" Payload/
+          zip -qr Rodroid_IL2CPPDumper_iOS_unsigned.ipa Payload
+
+      - name: Upload to Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          # Wait up to 30 seconds for the main release to be created if both triggered by push tag simultaneously
+          sleep 15 
+          gh release upload "v$VERSION" Rodroid_IL2CPPDumper_iOS_unsigned.ipa --clobber
