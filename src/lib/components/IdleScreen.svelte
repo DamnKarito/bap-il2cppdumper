@@ -1,6 +1,7 @@
 <script lang="ts">
   import { invoke } from "@tauri-apps/api/core";
   import { open } from "@tauri-apps/plugin-dialog";
+  import { type } from "@tauri-apps/plugin-os";
   import { appState, currentScreen, config, binaryPath, metadataPath, binaryInfo, t } from "$lib/stores";
   import type { BinaryInfo } from "$lib/types";
   import { Button } from "$lib/components/ui/button/index.js";
@@ -12,9 +13,10 @@
   let showConfig = $state(false);
 
   async function pickBinary() {
+    const osType = await type();
     const file = await open({
       multiple: false,
-      filters: [{ name: "IL2CPP Binary", extensions: ["so", "dll", "exe", "dylib", "nso", "wasm", "*"] }],
+      ...(osType === "ios" ? {} : { filters: [{ name: "IL2CPP Binary", extensions: ["so", "dll", "exe", "dylib", "nso", "wasm", "*"] }] }),
     });
     if (file) {
       binaryPath.set(file);
@@ -26,9 +28,10 @@
   }
 
   async function pickMetadata() {
+    const osType = await type();
     const file = await open({
       multiple: false,
-      filters: [{ name: "Metadata", extensions: ["dat", "*"] }],
+      ...(osType === "ios" ? {} : { filters: [{ name: "Metadata", extensions: ["dat", "*"] }] }),
     });
     if (file) metadataPath.set(file);
   }
