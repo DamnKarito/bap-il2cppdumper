@@ -2,7 +2,7 @@
   import { invoke } from "@tauri-apps/api/core";
   import { open } from "@tauri-apps/plugin-dialog";
   import { type } from "@tauri-apps/plugin-os";
-  import { copyFile } from "@tauri-apps/plugin-fs";
+  import { copyFile, mkdir } from "@tauri-apps/plugin-fs";
   import { appDataDir, join } from "@tauri-apps/api/path";
   import { appState, currentScreen, config, binaryPath, metadataPath, binaryInfo, t } from "$lib/stores";
   import type { BinaryInfo } from "$lib/types";
@@ -25,11 +25,13 @@
       if (osType === "ios") {
         try {
           const appData = await appDataDir();
+          await mkdir(appData, { recursive: true }).catch(() => {});
           const targetPath = await join(appData, "target_binary.bin");
           await copyFile(file, targetPath);
           finalPath = targetPath;
-        } catch (e) {
+        } catch (e: any) {
           console.error("iOS copy error (binary):", e);
+          alert("iOS Copy Error: " + (e?.message || e));
         }
       }
 
@@ -52,11 +54,13 @@
       if (osType === "ios") {
         try {
           const appData = await appDataDir();
+          await mkdir(appData, { recursive: true }).catch(() => {});
           const targetPath = await join(appData, "target_metadata.dat");
           await copyFile(file, targetPath);
           finalPath = targetPath;
-        } catch (e) {
+        } catch (e: any) {
           console.error("iOS copy error (metadata):", e);
+          alert("iOS Copy Error: " + (e?.message || e));
         }
       }
       metadataPath.set(finalPath);

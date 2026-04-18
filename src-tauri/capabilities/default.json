@@ -14,6 +14,8 @@
     "fs:allow-copy-file",
     "fs:allow-read-file",
     "fs:allow-write-file",
+    "fs:allow-mkdir",
+    "fs:allow-exists",
     {
       "identifier": "fs:allow-appdata-read",
       "allow": [{ "path": "$APP_DATA/**" }]
