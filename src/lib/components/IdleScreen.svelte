@@ -129,7 +129,7 @@
 
   <Button
     size="lg"
-    class="w-full py-5 text-sm font-semibold tracking-wide"
+    class="w-full py-5 text-sm font-semibold tracking-wide shrink-0"
     disabled={!$binaryPath || !$metadataPath}
     onclick={startDump}
   >

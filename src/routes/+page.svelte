@@ -147,11 +147,11 @@
 {#if $currentScreen === "splash"}
   <SplashScreen onfinished={handleSplashFinished} />
 {:else if $currentScreen === "crash"}
-  <main class="h-screen flex flex-col overflow-hidden">
+  <main class="h-[100dvh] flex flex-col overflow-hidden pb-[env(safe-area-inset-bottom)]">
     <CrashScreen crashLog={$crashLog} onrestart={handleCrashRestart} />
   </main>
 {:else}
-  <main class="h-screen flex flex-col overflow-hidden">
+  <main class="h-[100dvh] flex flex-col overflow-hidden pb-[env(safe-area-inset-bottom)]">
     {#if $currentScreen !== "settings" && $currentScreen !== "about"}
       <header class="shrink-0 px-5 py-3 border-b border-border" data-tauri-drag-region>
         <div class="flex items-center justify-between">
