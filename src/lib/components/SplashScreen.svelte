@@ -60,7 +60,7 @@
       style:opacity={versionVisible ? 1 : 0}
       style:transform="scale({versionVisible ? 1 : 0.8})"
     >
-      <Badge variant="secondary" class="text-xs px-4 py-1">v3.0</Badge>
+      <Badge variant="secondary" class="text-xs px-4 py-1">v4.0</Badge>
     </div>
   </div>
 </div>
