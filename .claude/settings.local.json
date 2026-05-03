@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "WebSearch",
+      "WebFetch(domain:www.skeleton.dev)",
+      "Bash(npm run *)"
+    ]
+  }
+}

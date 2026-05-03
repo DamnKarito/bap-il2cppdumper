@@ -11,8 +11,6 @@
     themeMode, applyTheme, t, crashLog, resetAll, outputDir, defaultOutputDir
   } from "$lib/stores";
   import type { DumperConfig, DumpCompleteEvent, InputRequestEvent } from "$lib/types";
-  import { Badge } from "$lib/components/ui/badge/index.js";
-  import { Button } from "$lib/components/ui/button/index.js";
   import IdleScreen from "$lib/components/IdleScreen.svelte";
   import DumpingScreen from "$lib/components/DumpingScreen.svelte";
   import ResultScreen from "$lib/components/ResultScreen.svelte";
@@ -147,44 +145,44 @@
 {#if $currentScreen === "splash"}
   <SplashScreen onfinished={handleSplashFinished} />
 {:else if $currentScreen === "crash"}
-  <main class="h-[100dvh] flex flex-col overflow-hidden pb-[env(safe-area-inset-bottom)]">
+  <main class="h-[100dvh] flex flex-col overflow-hidden pb-[env(safe-area-inset-bottom)]" style="background: var(--app-bg); color: var(--text-primary);">
     <CrashScreen crashLog={$crashLog} onrestart={handleCrashRestart} />
   </main>
 {:else}
-  <main class="h-[100dvh] flex flex-col overflow-hidden pb-[env(safe-area-inset-bottom)]">
+  <main class="h-[100dvh] flex flex-col overflow-hidden pb-[env(safe-area-inset-bottom)]" style="background: var(--app-bg); color: var(--text-primary);">
     {#if $currentScreen !== "settings" && $currentScreen !== "about"}
-      <header class="shrink-0 px-5 py-3 border-b border-border" data-tauri-drag-region>
+      <header class="shrink-0 px-5 py-3 border-b" style="border-color: var(--card-border);" data-tauri-drag-region>
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-3">
-            <div class="size-9 rounded-lg bg-primary/10 flex items-center justify-center ring-1 ring-primary/20">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="text-primary"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+            <div class="size-9 rounded-xl flex items-center justify-center" style="background: var(--accent-soft); box-shadow: inset 0 0 0 1px var(--accent-ring);">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="color: var(--accent);"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
             </div>
             <div>
-              <h1 class="text-sm font-semibold text-foreground tracking-tight">{$t.app_name}</h1>
-              <p class="text-[10px] text-muted-foreground">v4.0 {currentOs}</p>
+              <h1 class="text-sm font-semibold tracking-tight">{$t.app_name}</h1>
+              <p class="text-[10px]" style="color: var(--text-secondary);">v5.0 {currentOs}</p>
             </div>
           </div>
           <div class="flex items-center gap-2">
             {#if $currentScreen === "dumping"}
-              <Badge variant="outline" class="gap-1.5 border-primary/30 text-primary bg-primary/5">
-                <span class="size-1.5 rounded-full bg-primary animate-pulse"></span>
+              <span class="app-badge app-badge-accent text-xs gap-1.5">
+                <span class="size-1.5 rounded-full animate-pulse" style="background: var(--accent);"></span>
                 {$t.status_processing}
-              </Badge>
+              </span>
             {:else if $currentScreen === "result"}
-              <Badge variant="outline" class="gap-1.5 border-emerald-500/30 text-emerald-400 bg-emerald-500/5">
-                <span class="size-1.5 rounded-full bg-emerald-400"></span>
+              <span class="app-badge app-badge-success text-xs gap-1.5">
+                <span class="size-1.5 rounded-full" style="background: var(--success);"></span>
                 {$t.dump_complete}
-              </Badge>
+              </span>
             {:else if $currentScreen === "error"}
-              <Badge variant="outline" class="gap-1.5 border-destructive/30 text-destructive bg-destructive/5">
-                <span class="size-1.5 rounded-full bg-destructive"></span>
+              <span class="app-badge app-badge-error text-xs gap-1.5">
+                <span class="size-1.5 rounded-full" style="background: var(--error);"></span>
                 {$t.dump_failed}
-              </Badge>
+              </span>
             {/if}
             {#if $currentScreen === "idle"}
-              <Button variant="ghost" size="icon" onclick={() => currentScreen.set("settings")}>
+              <button type="button" class="app-btn-icon" aria-label="Settings" onclick={() => currentScreen.set("settings")}>
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
-              </Button>
+              </button>
             {/if}
           </div>
         </div>

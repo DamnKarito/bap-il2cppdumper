@@ -1,9 +1,6 @@
 <script lang="ts">
   import { logs, elapsedSeconds, t } from "$lib/stores";
   import { onMount, onDestroy, tick } from "svelte";
-  import { Card, CardContent, CardHeader, CardTitle } from "$lib/components/ui/card/index.js";
-  import { Badge } from "$lib/components/ui/badge/index.js";
-  import { ScrollArea } from "$lib/components/ui/scroll-area/index.js";
 
   let logContainer: HTMLDivElement;
   let timer: ReturnType<typeof setInterval>;
@@ -21,12 +18,12 @@
   }
 
   function getLogStyle(log: string): { color: string; icon: string } {
-    if (log.startsWith("ERROR")) return { color: "text-destructive", icon: "✕" };
-    if (log.startsWith("Done!")) return { color: "text-primary", icon: "★" };
-    if (log.includes("generated")) return { color: "text-emerald-400", icon: "✓" };
-    if (log.startsWith("Warning")) return { color: "text-yellow-400", icon: "!" };
-    if (log.includes("Detected") || log.includes("Found") || log.includes("Registration")) return { color: "text-primary", icon: "◆" };
-    return { color: "text-muted-foreground", icon: "›" };
+    if (log.startsWith("ERROR")) return { color: "var(--error)", icon: "\u2715" };
+    if (log.startsWith("Done!")) return { color: "var(--accent)", icon: "\u2605" };
+    if (log.includes("generated")) return { color: "var(--success)", icon: "\u2713" };
+    if (log.startsWith("Warning")) return { color: "var(--warning)", icon: "!" };
+    if (log.includes("Detected") || log.includes("Found") || log.includes("Registration")) return { color: "var(--accent)", icon: "\u25C6" };
+    return { color: "var(--text-secondary)", icon: "\u203A" };
   }
 
   $effect(() => {
@@ -37,52 +34,52 @@
 </script>
 
 <div class="flex flex-col h-full p-4 gap-3">
-  <Card>
-    <CardContent class="py-4">
-      <div class="flex items-center justify-between">
-        <div class="flex items-center gap-3">
-          <div class="size-10 rounded-xl bg-primary/10 flex items-center justify-center ring-1 ring-primary/20">
-            <div class="size-5 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
-          </div>
-          <div>
-            <p class="text-sm font-semibold text-foreground">{$t.status_processing}</p>
-            <p class="text-xs text-muted-foreground">{$logs.length} operations</p>
-          </div>
+  <!-- Status Card -->
+  <div class="app-card p-4">
+    <div class="flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="size-10 rounded-xl flex items-center justify-center" style="background: var(--accent-soft); box-shadow: inset 0 0 0 1px var(--accent-ring);">
+          <div class="size-5 border-2 rounded-full animate-spin" style="border-color: var(--accent); border-top-color: transparent;"></div>
         </div>
-        <div class="px-3 py-1.5 rounded-lg bg-card border border-border font-mono">
-          <span class="text-sm font-bold text-primary tabular-nums">{formatTime($elapsedSeconds)}</span>
+        <div>
+          <p class="text-sm font-semibold">{$t.status_processing}</p>
+          <p class="text-xs" style="color: var(--text-secondary);">{$logs.length} operations</p>
         </div>
       </div>
-      <div class="mt-3 h-1.5 rounded-full bg-muted overflow-hidden">
-        <div class="h-full rounded-full bg-primary animate-pulse" style="width: 100%"></div>
+      <div class="px-3 py-1.5 rounded-lg font-mono" style="background: var(--input-bg); border: 1px solid var(--input-border);">
+        <span class="text-sm font-bold tabular-nums" style="color: var(--accent);">{formatTime($elapsedSeconds)}</span>
       </div>
-    </CardContent>
-  </Card>
+    </div>
+    <div class="mt-3 h-1.5 rounded-full overflow-hidden" style="background: var(--input-bg);">
+      <div class="h-full rounded-full animate-pulse" style="background: var(--accent); width: 100%;"></div>
+    </div>
+  </div>
 
-  <Card class="flex-1 flex flex-col min-h-0 overflow-hidden">
-    <CardHeader class="py-3 border-b border-border">
+  <!-- Log Card -->
+  <div class="app-card flex-1 flex flex-col min-h-0 overflow-hidden">
+    <div class="py-3 px-4 border-b" style="border-color: var(--card-border);">
       <div class="flex items-center justify-between">
         <div class="flex items-center gap-2">
-          <span class="size-2 rounded-full bg-emerald-400 animate-pulse"></span>
-          <CardTitle class="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Live Output</CardTitle>
+          <span class="size-2 rounded-full animate-pulse" style="background: var(--success);"></span>
+          <span class="text-xs font-semibold uppercase tracking-widest" style="color: var(--text-secondary);">Live Output</span>
         </div>
-        <Badge variant="secondary" class="text-[10px]">{$logs.length} lines</Badge>
+        <span class="app-badge app-badge-muted text-[10px]">{$logs.length} lines</span>
       </div>
-    </CardHeader>
+    </div>
     <div bind:this={logContainer} class="flex-1 overflow-y-auto p-3 space-y-px">
       {#each $logs as log, i}
         {@const style = getLogStyle(log)}
-        <div class="flex items-start gap-2 py-0.5 px-2 -mx-2 rounded-md hover:bg-muted/30 transition-colors group">
-          <span class="text-[10px] font-mono text-muted-foreground/40 mt-1 w-5 text-right shrink-0 tabular-nums">{i + 1}</span>
-          <span class="text-[10px] mt-1 {style.color} w-3 shrink-0 opacity-60">{style.icon}</span>
-          <span class="text-[13px] font-mono {style.color} break-all leading-relaxed">{log}</span>
+        <div class="flex items-start gap-2 py-0.5 px-2 -mx-2 rounded-md transition-colors group" style:--log-color={style.color}>
+          <span class="text-[10px] font-mono mt-1 w-5 text-right shrink-0 tabular-nums" style="color: var(--text-secondary); opacity: 0.5;">{i + 1}</span>
+          <span class="text-[10px] mt-1 w-3 shrink-0 opacity-60" style="color: var(--log-color);">{style.icon}</span>
+          <span class="text-[13px] font-mono break-all leading-relaxed" style="color: var(--log-color);">{log}</span>
         </div>
       {/each}
       {#if $logs.length === 0}
         <div class="flex items-center justify-center h-full">
-          <p class="text-sm text-muted-foreground">Waiting for output...</p>
+          <p class="text-sm" style="color: var(--text-secondary);">Waiting for output...</p>
         </div>
       {/if}
     </div>
-  </Card>
+  </div>
 </div>

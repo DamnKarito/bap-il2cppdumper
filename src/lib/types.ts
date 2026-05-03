@@ -36,6 +36,7 @@ export interface DumperConfig {
   generateUnityHeaders: boolean;
   compilerLayout: string;
   useTopologicalSort: boolean;
+  codm: boolean;
 }
 
 export interface BinaryInfo {
@@ -93,4 +94,5 @@ export const DEFAULT_CONFIG: DumperConfig = {
   generateUnityHeaders: true,
   compilerLayout: "GCC",
   useTopologicalSort: true,
+  codm: false,
 };

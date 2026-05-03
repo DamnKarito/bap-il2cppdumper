@@ -1,4 +1,4 @@
-import { writable, derived, get } from "svelte/store";
+import { writable, derived } from "svelte/store";
 import type { AppState, DumperConfig, BinaryInfo } from "./types";
 import { DEFAULT_CONFIG } from "./types";
 import { type AppLanguage, type ThemeMode, getTranslations } from "./i18n";
@@ -91,13 +91,22 @@ export function resetForNewDump() {
 
 export function applyTheme(mode: ThemeMode) {
   const html = document.documentElement;
-  if (mode === "dark") {
+  const setDark = () => {
     html.classList.add("dark");
-  } else if (mode === "light") {
+    html.classList.remove("light-mode");
+    html.style.colorScheme = "dark";
+  };
+  const setLight = () => {
     html.classList.remove("dark");
+    html.classList.add("light-mode");
+    html.style.colorScheme = "light";
+  };
+  if (mode === "dark") {
+    setDark();
+  } else if (mode === "light") {
+    setLight();
   } else {
     const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-    if (prefersDark) html.classList.add("dark");
-    else html.classList.remove("dark");
+    if (prefersDark) setDark(); else setLight();
   }
 }

@@ -4,6 +4,7 @@ use crate::il2cpp::base::Il2Cpp;
 use crate::il2cpp::metadata::Metadata;
 use crate::il2cpp::enums::Il2CppTypeEnum;
 use crate::il2cpp::structures::*;
+use crate::utils::escape_string;
 
 #[derive(Debug)]
 pub enum DefaultValue {
@@ -56,21 +57,6 @@ impl std::fmt::Display for DefaultValue {
     }
 }
 
-fn escape_string(s: &str) -> String {
-    let mut r = String::with_capacity(s.len());
-    for c in s.chars() {
-        match c {
-            '\\' => r.push_str("\\\\"),
-            '"' => r.push_str("\\\""),
-            '\n' => r.push_str("\\n"),
-            '\r' => r.push_str("\\r"),
-            '\t' => r.push_str("\\t"),
-            '\0' => r.push_str("\\0"),
-            _ => r.push(c),
-        }
-    }
-    r
-}
 
 pub struct Il2CppExecutor {
     pub custom_attribute_generators: Vec<u64>,

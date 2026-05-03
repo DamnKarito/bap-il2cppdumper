@@ -27,7 +27,7 @@ use crate::formats::nso::Nso;
 use crate::formats::pe::Pe;
 use crate::formats::wasm::Wasm;
 use crate::il2cpp::base::{Il2Cpp, VaSegment};
-use crate::il2cpp::metadata::Metadata;
+use crate::il2cpp::metadata::{Metadata, MetadataVariant};
 use crate::output::decompiler::Il2CppDecompiler;
 use crate::output::struct_generator::StructGenerator;
 
@@ -347,7 +347,11 @@ fn init_elf(
         &format!("Detected ELF{} format", if is_64 { "64" } else { "32" }),
     );
 
-    let mut elf = Elf::new(data, !is_64)?;
+    let mut elf = if metadata.variant == MetadataVariant::Codm {
+        Elf::new_with_codm_diag(data, !is_64, true)?
+    } else {
+        Elf::new(data, !is_64)?
+    };
     let version = if config.force_il2cpp_version {
         config.force_version
     } else {
@@ -394,7 +398,11 @@ fn init_elf(
 
         let mut helper = elf.get_section_helper(method_count, type_count, image_count);
         let code_reg = helper.find_code_registration();
-        let metadata_reg = helper.find_metadata_registration();
+        let metadata_reg = if metadata.variant == MetadataVariant::Codm {
+            helper.find_metadata_registration_codm().or_else(|| helper.find_metadata_registration())
+        } else {
+            helper.find_metadata_registration()
+        };
 
         if let Some(cr) = code_reg {
             emit_log(app, &format!("CodeRegistration : 0x{cr:x}"));
@@ -642,7 +650,11 @@ fn init_macho(
         ),
     );
 
-    let mut macho = MachO::new(data, !is_64)?;
+    let mut macho = if metadata.variant == MetadataVariant::Codm {
+        MachO::new_with_codm_fixups(data, !is_64, true)?
+    } else {
+        MachO::new(data, !is_64)?
+    };
     let version = if config.force_il2cpp_version {
         config.force_version
     } else {
@@ -674,6 +686,8 @@ fn init_macho(
 
     if config.force_dump {
         if let Some((cr, mr)) = prompt_manual_addresses(app, state) {
+            emit_log(app, &format!("CodeRegistration : 0x{cr:x}"));
+            emit_log(app, &format!("MetadataRegistration : 0x{mr:x}"));
             cr_addr = cr;
             mr_addr = mr;
         }
@@ -692,6 +706,8 @@ fn init_macho(
     if cr_addr == 0 || mr_addr == 0 {
         if let Some((cr, mr)) = macho.search_mod_init_func(version) {
             emit_log(app, "Found via __mod_init_func search");
+            emit_log(app, &format!("CodeRegistration : 0x{cr:x}"));
+            emit_log(app, &format!("MetadataRegistration : 0x{mr:x}"));
             cr_addr = cr;
             mr_addr = mr;
         }
@@ -700,10 +716,14 @@ fn init_macho(
     if cr_addr == 0 || mr_addr == 0 {
         let mut helper =
             macho.get_section_helper(method_count, type_count, mu_count, image_count, version);
-        if let (Some(cr), Some(mr)) = (
-            helper.find_code_registration(),
-            helper.find_metadata_registration(),
-        ) {
+        let metadata_reg = if metadata.variant == MetadataVariant::Codm {
+            helper.find_metadata_registration_codm().or_else(|| helper.find_metadata_registration())
+        } else {
+            helper.find_metadata_registration()
+        };
+        if let (Some(cr), Some(mr)) = (helper.find_code_registration(), metadata_reg) {
+            emit_log(app, &format!("CodeRegistration : 0x{cr:x}"));
+            emit_log(app, &format!("MetadataRegistration : 0x{mr:x}"));
             cr_addr = cr;
             mr_addr = mr;
         }
@@ -712,6 +732,8 @@ fn init_macho(
     if cr_addr == 0 || mr_addr == 0 {
         emit_log(app, "Auto mode failed, requesting manual addresses...");
         if let Some((cr, mr)) = prompt_manual_addresses(app, state) {
+            emit_log(app, &format!("CodeRegistration : 0x{cr:x}"));
+            emit_log(app, &format!("MetadataRegistration : 0x{mr:x}"));
             cr_addr = cr;
             mr_addr = mr;
         } else {
@@ -816,11 +838,15 @@ fn init_nso(
             helper.find_code_registration(),
             helper.find_metadata_registration(),
         ) {
+            emit_log(app, &format!("CodeRegistration : 0x{cr:x}"));
+            emit_log(app, &format!("MetadataRegistration : 0x{mr:x}"));
             cr_addr = cr;
             mr_addr = mr;
         } else {
             emit_log(app, "Auto mode failed, requesting manual addresses...");
             if let Some((cr, mr)) = prompt_manual_addresses(app, state) {
+                emit_log(app, &format!("CodeRegistration : 0x{cr:x}"));
+                emit_log(app, &format!("MetadataRegistration : 0x{mr:x}"));
                 cr_addr = cr;
                 mr_addr = mr;
             } else {
@@ -910,11 +936,15 @@ fn init_wasm(
             helper.find_code_registration(),
             helper.find_metadata_registration(),
         ) {
+            emit_log(app, &format!("CodeRegistration : 0x{cr:x}"));
+            emit_log(app, &format!("MetadataRegistration : 0x{mr:x}"));
             cr_addr = cr;
             mr_addr = mr;
         } else {
             emit_log(app, "Auto mode failed, requesting manual addresses...");
             if let Some((cr, mr)) = prompt_manual_addresses(app, state) {
+                emit_log(app, &format!("CodeRegistration : 0x{cr:x}"));
+                emit_log(app, &format!("MetadataRegistration : 0x{mr:x}"));
                 cr_addr = cr;
                 mr_addr = mr;
             } else {
@@ -981,9 +1011,12 @@ fn run_dump(
         }
     }
 
-    let mut metadata =
-        Metadata::new_with_unity_version(metadata_bytes, unity_version_str.as_deref())
-            .map_err(|e| format!("Failed to parse metadata: {e}"))?;
+    let mut metadata = Metadata::new_with_options(
+        metadata_bytes,
+        unity_version_str.as_deref(),
+        config.codm,
+    )
+    .map_err(|e| format!("Failed to parse metadata: {e}"))?;
     emit_log(app, &format!("Metadata Version: {}", metadata.version));
 
     let format_name = detect_format(&il2cpp_bytes);

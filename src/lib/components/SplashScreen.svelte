@@ -1,7 +1,6 @@
 <script lang="ts">
   import lottie from "lottie-web";
   import { onMount } from "svelte";
-  import { Badge } from "$lib/components/ui/badge/index.js";
 
   let { onfinished }: { onfinished: () => void } = $props();
   let container: HTMLDivElement;
@@ -37,7 +36,8 @@
 </script>
 
 <div
-  class="fixed inset-0 z-[100] flex items-center justify-center bg-background transition-opacity duration-400"
+  class="fixed inset-0 z-[100] flex items-center justify-center transition-opacity duration-400"
+  style="background: var(--app-bg); color: var(--text-primary);"
   style:opacity={fadeOut ? 0 : 1}
 >
   <div class="flex flex-col items-center gap-5">
@@ -48,7 +48,7 @@
     ></div>
 
     <h1
-      class="text-2xl font-bold tracking-tight text-foreground transition-all duration-400 ease-out"
+      class="text-2xl font-bold tracking-tight transition-all duration-400 ease-out"
       style:opacity={titleVisible ? 1 : 0}
       style:transform="translateY({titleVisible ? 0 : 20}px)"
     >
@@ -60,7 +60,7 @@
       style:opacity={versionVisible ? 1 : 0}
       style:transform="scale({versionVisible ? 1 : 0.8})"
     >
-      <Badge variant="secondary" class="text-xs px-4 py-1">v4.0</Badge>
+      <span class="app-badge app-badge-muted text-xs px-4 py-1">v5.0</span>
     </div>
   </div>
 </div>
