@@ -22,6 +22,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		0039B61F7AD8671C60A1409E /* name_mangler.rs */ = {isa = PBXFileReference; path = name_mangler.rs; sourceTree = "<group>"; };
 		0799B37671178EDEF4E2B79D /* binary_stream.rs */ = {isa = PBXFileReference; path = binary_stream.rs; sourceTree = "<group>"; };
 		0A3AA90E41C2A998BC096537 /* mod.rs */ = {isa = PBXFileReference; path = mod.rs; sourceTree = "<group>"; };
 		1158DDDA771AFA26E37082C3 /* error.rs */ = {isa = PBXFileReference; path = error.rs; sourceTree = "<group>"; };
@@ -41,6 +42,7 @@
 		499B947F2F163846C09C949E /* arm.rs */ = {isa = PBXFileReference; path = arm.rs; sourceTree = "<group>"; };
 		50B8BCE3EAC3A2BCF94BDA8E /* main.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = main.mm; sourceTree = "<group>"; };
 		57F74B5CD8A23CDE4E33D0FD /* elf.rs */ = {isa = PBXFileReference; path = elf.rs; sourceTree = "<group>"; };
+		59741984790F91996FB73222 /* cpp_type_dependency_graph.rs */ = {isa = PBXFileReference; path = cpp_type_dependency_graph.rs; sourceTree = "<group>"; };
 		59F6C62BA6A74BD71699A56C /* rodroid-il2cppdumper_iOS.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "rodroid-il2cppdumper_iOS.entitlements"; sourceTree = "<group>"; };
 		5B718E243868EA02504600CB /* base.rs */ = {isa = PBXFileReference; path = base.rs; sourceTree = "<group>"; };
 		5C523D012B43A3C43521F64C /* lib.rs */ = {isa = PBXFileReference; path = lib.rs; sourceTree = "<group>"; };
@@ -52,12 +54,16 @@
 		70E9FCACD57E5E7FE3F62B16 /* LaunchScreen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
 		72C243B307C2B082CF25A8DB /* mod.rs */ = {isa = PBXFileReference; path = mod.rs; sourceTree = "<group>"; };
 		7CE03779F4BD9C36A4A749C1 /* custom_attribute_reader.rs */ = {isa = PBXFileReference; path = custom_attribute_reader.rs; sourceTree = "<group>"; };
+		7E857FAD31C6036699F3C46F /* header_manager.rs */ = {isa = PBXFileReference; path = header_manager.rs; sourceTree = "<group>"; };
+		803CE70D925DDAE2320CD110 /* cpp_type_model.rs */ = {isa = PBXFileReference; path = cpp_type_model.rs; sourceTree = "<group>"; };
+		8319AFFC9C995D3694452C6C /* cpp_ast.rs */ = {isa = PBXFileReference; path = cpp_ast.rs; sourceTree = "<group>"; };
 		840ED74570E1D7B3619535A7 /* MetalKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MetalKit.framework; path = System/Library/Frameworks/MetalKit.framework; sourceTree = SDKROOT; };
 		90D287EA1CFA53842D7CB617 /* generics.rs */ = {isa = PBXFileReference; path = generics.rs; sourceTree = "<group>"; };
 		92F4BF2730B3CDB0419C6AC9 /* struct_generator.rs */ = {isa = PBXFileReference; path = struct_generator.rs; sourceTree = "<group>"; };
 		959C2E90565E8A9B470974D8 /* script_json.rs */ = {isa = PBXFileReference; path = script_json.rs; sourceTree = "<group>"; };
 		9ABA92BC946DDAB6ADEF5A38 /* rodroid-il2cppdumper_iOS.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = "rodroid-il2cppdumper_iOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		9B27DEE5B56D39E5C1656A4C /* bindings.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = bindings.h; sourceTree = "<group>"; };
+		9FA388A7409895E85150AF9C /* unity_version.rs */ = {isa = PBXFileReference; path = unity_version.rs; sourceTree = "<group>"; };
 		A46A92C79F2A90D514B526D9 /* mod.rs */ = {isa = PBXFileReference; path = mod.rs; sourceTree = "<group>"; };
 		A74DA2FBC42D2F81EDDE15AD /* wasm.rs */ = {isa = PBXFileReference; path = wasm.rs; sourceTree = "<group>"; };
 		A8E5BB56CE4E0B1B4D45C324 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
@@ -75,6 +81,7 @@
 		D6F5C785E1AA79D54C3B1285 /* macho.rs */ = {isa = PBXFileReference; path = macho.rs; sourceTree = "<group>"; };
 		E1F1BDD2C5C44E4E29BA8022 /* enums.rs */ = {isa = PBXFileReference; path = enums.rs; sourceTree = "<group>"; };
 		E25042F6D185EA61F48AD6A9 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
+		E91F4100FC8D0C99F4C226D0 /* cpp_scaffolding.rs */ = {isa = PBXFileReference; path = cpp_scaffolding.rs; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -117,14 +124,21 @@
 		24F50B99C0714FDDF1251171 /* output */ = {
 			isa = PBXGroup;
 			children = (
+				8319AFFC9C995D3694452C6C /* cpp_ast.rs */,
+				E91F4100FC8D0C99F4C226D0 /* cpp_scaffolding.rs */,
+				59741984790F91996FB73222 /* cpp_type_dependency_graph.rs */,
+				803CE70D925DDAE2320CD110 /* cpp_type_model.rs */,
 				606ED59F5B163B8BC00C7AAF /* decompiler.rs */,
 				293D4E388D0ADC6B4CC202CD /* dummy_assembly_generator.rs */,
 				AD6E2361B9914A71C5004F23 /* embedded_scripts.rs */,
 				90D287EA1CFA53842D7CB617 /* generics.rs */,
 				BEC4F67A1162CC4D92B3660A /* header_constants.rs */,
+				7E857FAD31C6036699F3C46F /* header_manager.rs */,
 				1B4C591EAE28088C089DF771 /* mod.rs */,
+				0039B61F7AD8671C60A1409E /* name_mangler.rs */,
 				959C2E90565E8A9B470974D8 /* script_json.rs */,
 				92F4BF2730B3CDB0419C6AC9 /* struct_generator.rs */,
+				9FA388A7409895E85150AF9C /* unity_version.rs */,
 			);
 			path = output;
 			sourceTree = "<group>";
